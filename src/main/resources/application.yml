@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: test-quest-api
+  # MariaDB
+  datasource:
+    url: jdbc:mariadb://${DB_URL}:${DB_PORT}/${DB_dataBaseName}?serverTimezone=UTC&characterEncoding=UTF-8
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  # jpa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    show-sql: true
+    # properties:
+    #     hibernate:
+    #       auto_quote_keyword: true
+
+# 로그 레벨 (선택)
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+
+jwt:
+  header: Authorization
+  expires-in: 86400
+  mobile-expires-in: 31536000
+  secret-key: ${JWT_SECRET_KEY}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs # OpenAPI 문서 경로 변경 (기본: /v3/api-docs)
+    enabled: true # API 문서 활성화 (기본: true)
+  swagger-ui:
+    path: /swagger-ui.html # Swagger UI 접속 경로 (기본: /swagger-ui.html)
+    enabled: true # Swagger UI 활성화 (기본: true)
+    display-request-duration: true # 요청 시간 표시
+    tags-sorter: alpha # 태그 정렬 방식 (alpha: 알파벳순)
+    operations-sorter: method # operation 정렬 방식 (method, alpha)
