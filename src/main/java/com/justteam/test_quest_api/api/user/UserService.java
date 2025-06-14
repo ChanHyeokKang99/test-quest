@@ -26,7 +26,7 @@ public class UserService {
     private final TokenGenerator tokenGenerator;
     private final UserRepository userRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ApiResponseDto registerUser(UserRegisterDto userRegisterDto) {
         User user = userRegisterDto.toEntity();
         userRepository.save(user);
@@ -44,7 +44,7 @@ public class UserService {
         return tokenGenerator.generateAccessRefreshToken(user.getUserId(), "WEB");
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public TokenDto.AccessToken refresh(UserRefreshDto refreshDto) {
         String userId = tokenGenerator.validateJwtToken(refreshDto.getToken());
         if (userId == null) {
