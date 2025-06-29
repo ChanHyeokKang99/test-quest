@@ -28,6 +28,10 @@ public class ApiResponseDto<T> {
     }
 
     public static <T>ApiResponseDto<T> createError(String code, String message) {
-        return new ApiResponseDto(code, message, null);
+        return new ApiResponseDto<>(code, message, null);
     }
+
+    public static <T> ApiResponseDto<T> createError(String code, String message, T data) {
+        return new ApiResponseDto<>(code, message, data);
+}
 }

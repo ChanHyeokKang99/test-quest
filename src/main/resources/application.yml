@@ -17,6 +17,11 @@ spring:
     #     hibernate:
     #       auto_quote_keyword: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB  # 단일 파일 최대 크기 (예: 10MB)
+      max-request-size: 100MB # 전체 요청 (여러 파일 포함) 최대 크기 (예: 100MB)
+
 # 로그 레벨 (선택)
 logging:
   level:
@@ -40,3 +45,9 @@ springdoc:
     display-request-duration: true # 요청 시간 표시
     tags-sorter: alpha # 태그 정렬 방식 (alpha: 알파벳순)
     operations-sorter: method # operation 정렬 방식 (method, alpha)
+
+firebase:
+  sdk:
+    path: ${FIREBASE_CONTENT}
+  storage:
+    bucket: ${FIREBASE_BUCKET}

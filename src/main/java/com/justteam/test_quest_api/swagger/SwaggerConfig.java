@@ -27,7 +27,7 @@ public class SwaggerConfig {
         .version("v0.0.1")
                 .description("TestQuest API 명세서입니다.");
         return new OpenAPI()
-            .components(new Components().addSecuritySchemes("Bearer Token", apiKey))
+            .components(new Components().addSecuritySchemes("BearerAuth", apiKey))
                 .info(info).servers(List.of());
     }
 }

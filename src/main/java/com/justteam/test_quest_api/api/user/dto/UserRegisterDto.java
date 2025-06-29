@@ -3,8 +3,10 @@ package com.justteam.test_quest_api.api.user.dto;
 import com.justteam.test_quest_api.api.user.entity.User;
 import com.justteam.test_quest_api.jwt.hash.SecureHashUtils;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class UserRegisterDto {
@@ -21,8 +23,10 @@ public class UserRegisterDto {
     @NotBlank(message = "닉네임을 입력해주세요")
     private String nickname;
 
-    @NotBlank(message = "프로필 이미지를 넣어주세요")
+    @Schema(hidden = true)
     private String profileImg;
+
+    private MultipartFile profileImage; // <-- MultipartFile 필드 추가
 
     public User toEntity() {
         User user = new User();

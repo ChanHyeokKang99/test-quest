@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.justteam.test_quest_api.jwt.dto.TokenDto;
@@ -15,6 +16,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TokenGenerator {
@@ -65,7 +67,8 @@ public class TokenGenerator {
 
     public String validateJwtToken(String refreshToken) {
         String userId = null;
-        final Claims claims = this.verifyAndGetClaims(refreshToken);
+        String token = refreshToken.substring(7);
+        final Claims claims = this.verifyAndGetClaims(token);
         if (claims == null) {
             return null;
         }

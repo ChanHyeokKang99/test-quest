@@ -1,4 +1,4 @@
-package com.justteam.test_quest_api.api.user;
+package com.justteam.test_quest_api.api.user.service;
 
 import java.util.Optional;
 
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.justteam.test_quest_api.api.user.dto.UserLoginDto;
-import com.justteam.test_quest_api.api.user.dto.UserRefreshDto;
 import com.justteam.test_quest_api.api.user.dto.UserRegisterDto;
 import com.justteam.test_quest_api.api.user.entity.User;
 import com.justteam.test_quest_api.api.user.repository.UserRepository;
@@ -44,15 +43,14 @@ public class UserService {
         return tokenGenerator.generateAccessRefreshToken(user.getUserId(), "WEB");
     }
 
-    @Transactional(readOnly = true)
-    public TokenDto.AccessToken refresh(UserRefreshDto refreshDto) {
-        String userId = tokenGenerator.validateJwtToken(refreshDto.getToken());
+    @Transactional
+    public TokenDto.AccessToken refresh(String refreshToken) {
+        String userId = tokenGenerator.validateJwtToken(refreshToken);
         if (userId == null) {
             throw new Error("토큰이 유효하지 않습니다.");
         }
-
         Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
+        if (user.isEmpty()) {
             throw new Error("사용자를 찾을 수 없습니다.");
         }
 
