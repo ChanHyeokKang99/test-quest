@@ -48,6 +48,7 @@ springdoc:
 
 firebase:
   sdk:
-    path: ${FIREBASE_CONTENT}
+    path:
+    content: ${FIREBASE_CONTENT:}
   storage:
     bucket: ${FIREBASE_BUCKET}
