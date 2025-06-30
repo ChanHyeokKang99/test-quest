@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,6 +28,10 @@ public class FireBaseConfig {
     @PostConstruct
     public void initialize() throws IOException {
         try {
+            if (firebaseSdkJson == null || firebaseSdkJson.isEmpty()) {
+                throw new IllegalArgumentException("Firebase private key JSON property is not set.");
+            }
+
             InputStream serviceAccount = new ByteArrayInputStream(firebaseSdkJson.getBytes(StandardCharsets.UTF_8));
 
             FirebaseOptions options = FirebaseOptions.builder()
