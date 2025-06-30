@@ -48,6 +48,7 @@ springdoc:
 
 firebase:
   sdk:
-    json: ${FIREBASE_CONTENT:}
+    json: |
+      ${FIREBASE_JSON}
   storage:
     bucket: ${FIREBASE_BUCKET}
