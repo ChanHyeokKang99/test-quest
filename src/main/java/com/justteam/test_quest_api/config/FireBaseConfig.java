@@ -11,22 +11,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.StringUtils; // <-- StringUtils 임포트 추가
 
-import java.io.ByteArrayInputStream; // <-- ByteArrayInputStream 임포트 추가
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets; // <-- StandardCharsets 임포트 추가
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 @Slf4j
 public class FireBaseConfig {
-
-    @Value("${firebase.sdk.path:classpath:serviceAccountKey.json}")
-    private String firebaseSdkPath;
-
-    @Value("${firebase.sdk.content:}") // 기본값은 빈 문자열
-    private String firebaseSdkContent;
+    @Value("${firebase.sdk.json}")
+    private String firebaseSdkJson;
 
     @Value("${firebase.storage.bucket}")
     private String firebaseBucket;
@@ -34,23 +29,12 @@ public class FireBaseConfig {
     @PostConstruct
     public void initialize() throws IOException {
         try {
-            FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder();
-            GoogleCredentials credentials;
+            InputStream serviceAccount = new ByteArrayInputStream(firebaseSdkJson.getBytes(StandardCharsets.UTF_8));
 
-            if (StringUtils.hasText(firebaseSdkContent)) {
-                InputStream serviceAccountStream = new ByteArrayInputStream(firebaseSdkContent.getBytes(StandardCharsets.UTF_8));
-                credentials = GoogleCredentials.fromStream(serviceAccountStream);
-                log.info("Firebase initialization using service account JSON content from environment variable.");
-            }
-            else {
-                InputStream serviceAccount = new ClassPathResource(firebaseSdkPath.substring("classpath:".length())).getInputStream();
-                credentials = GoogleCredentials.fromStream(serviceAccount);
-                log.info("Firebase initialization using service account key from classpath: {}", firebaseSdkPath);
-            }
-
-            optionsBuilder.setCredentials(credentials);
-            optionsBuilder.setStorageBucket(firebaseBucket); // 버킷 설정
-            FirebaseOptions options = optionsBuilder.build();
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setStorageBucket(firebaseBucket) // 버킷 설정
+                    .build();
 
             if (FirebaseApp.getApps().isEmpty()) { // 이미 초기화된 앱이 없는 경우에만 초기화
                 FirebaseApp.initializeApp(options);
@@ -67,8 +51,7 @@ public class FireBaseConfig {
 
     @Bean
     // Firebase Storage Bucket 인스턴스를 빈으로 등록하여 필요한 곳에서 주입받아 사용할 수 있게 함
-    public Bucket firebaseBucket() {
-        // FirebaseApp이 초기화된 후에 호출되어야 함 (PostConstruct가 먼저 실행됨)
+    public Bucket getFirebaseBucket() {
         return StorageClient.getInstance().bucket();
     }
 }
