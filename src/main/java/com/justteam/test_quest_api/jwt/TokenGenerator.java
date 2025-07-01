@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -65,7 +66,7 @@ public class TokenGenerator {
         return new TokenDto.JwtToken(token, tokenExpiresIn);
     }
 
-    public String validateJwtToken(String refreshToken) {
+    public String validateJwtRefreshToken(String refreshToken) {
         String userId = null;
         String token = refreshToken.substring(7);
         final Claims claims = this.verifyAndGetClaims(token);
@@ -82,6 +83,28 @@ public class TokenGenerator {
 
         String tokenType = claims.get("tokenType", String.class);
         if (!"refresh".equals(tokenType)) {
+            return null;
+        }
+
+        return userId;
+    }
+
+    public String validateJwtToken(String accessToken) {
+        String userId = null;
+        final Claims claims = this.verifyAndGetClaims(accessToken);
+        if (claims == null) {
+            return null;
+        }
+
+        Date expirationDate = claims.getExpiration();
+        if (expirationDate == null || expirationDate.before(new Date())) {
+            return null;
+        }
+
+        userId = claims.get("userId", String.class);
+
+        String tokenType = claims.get("tokenType", String.class);
+        if (!"access".equals(tokenType)) {
             return null;
         }
 
@@ -121,5 +144,18 @@ public class TokenGenerator {
         }
 
         return expiresIn;
+    }
+
+    public String getToken(HttpServletRequest request) {
+        String authHeader = getAuthHeaderFromHeader(request);
+        if (authHeader != null && authHeader.startsWith("Bearer")) {
+            return authHeader.substring(7);
+        }
+
+        return null;
+    }
+
+    private String getAuthHeaderFromHeader(HttpServletRequest request) {
+        return request.getHeader(configProperties.getHeader());
     }
 }

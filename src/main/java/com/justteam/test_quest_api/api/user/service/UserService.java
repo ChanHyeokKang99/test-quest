@@ -45,7 +45,7 @@ public class UserService {
 
     @Transactional
     public TokenDto.AccessToken refresh(String refreshToken) {
-        String userId = tokenGenerator.validateJwtToken(refreshToken);
+        String userId = tokenGenerator.validateJwtRefreshToken(refreshToken);
         if (userId == null) {
             throw new Error("토큰이 유효하지 않습니다.");
         }
