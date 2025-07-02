@@ -36,7 +36,7 @@ public class AuthController {
         try {
             String imageUrl = null;
             // DTO 내부에 있는 profileImage 필드 사용
-            if (userRegisterDto.getProfileImage() != null && !userRegisterDto.getProfileImage().isEmpty()) {
+            if (userRegisterDto.getProfileImage() != null) {
                 imageUrl = firebaseStorageService.uploadImage(userRegisterDto.getProfileImage());
                 userRegisterDto.setProfileImg(imageUrl);
             }
