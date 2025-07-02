@@ -1,5 +1,8 @@
 package com.justteam.test_quest_api.jwt.filter;
 
+import com.justteam.test_quest_api.api.user.entity.User;
+import com.justteam.test_quest_api.api.user.repository.UserRepository;
+import com.justteam.test_quest_api.api.user.service.UserService;
 import com.justteam.test_quest_api.jwt.TokenGenerator;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,13 +18,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenGenerator tokenGenerator;
-    private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -33,23 +37,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String userId = tokenGenerator.validateJwtToken(jwtToken);
                 log.debug("userId : {}", userId);
 
-                if (userId != null && !userId.trim().isEmpty()) {
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+                if (userId != null) {
 
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.info("인증된 사용자: {}", userDetails.getUsername());
+                    Optional<User> user = userRepository.findById(userId);
+                    if(user.isPresent()){
+                        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                                user, null
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        log.info("인증된 사용자: {}", user.get().getUserId());
+
+                    }else {
+                        log.debug("존재하지 않은 회원입니다.");
+                    }
                 } else {
-                    log.warn("JWT 토큰은 유효하지만 사용자 ID를 추출할 수 없거나 비어 있습니다. 토큰: {}", jwtToken);
+                    log.debug("요청에 JWT 토큰이 없습니다. URL: {}", request.getRequestURI());
                 }
-            } else {
-                log.debug("요청에 JWT 토큰이 없습니다. URL: {}", request.getRequestURI());
+            }else {
+                log.debug("사용자 정보가 없습니다.");
             }
         } catch (Exception e) {
-            log.error("JWT 인증 중 오류 발생: {}",e.getMessage(), e);
+            log.error("JWT 인증 중 오류 발생: "+ e);
         }
-        filterChain.doFilter(request, response);
+     filterChain.doFilter(request, response);
     }
 }

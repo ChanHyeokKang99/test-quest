@@ -2,6 +2,7 @@ package com.justteam.test_quest_api.config;
 
 import java.util.List;
 
+import com.justteam.test_quest_api.api.user.repository.UserRepository;
 import com.justteam.test_quest_api.jwt.TokenGenerator;
 import com.justteam.test_quest_api.jwt.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final TokenGenerator tokenGenerator;
-    private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
     
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -40,7 +41,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-    
+
     @Bean
     public SecurityFilterChain applicationSecurity(HttpSecurity http) throws Exception {
         http
@@ -53,7 +54,7 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin((AbstractHttpConfigurer::disable))
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new JwtAuthenticationFilter(tokenGenerator, userDetailsService),
+                .addFilterBefore(new JwtAuthenticationFilter(tokenGenerator, userRepository),
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
                     "/api/v1/auth/**",
