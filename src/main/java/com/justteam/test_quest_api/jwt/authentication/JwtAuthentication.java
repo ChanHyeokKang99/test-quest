@@ -3,7 +3,6 @@ package com.justteam.test_quest_api.jwt.authentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.nio.file.attribute.UserPrincipal;
 import java.util.Collection;
 
 public class JwtAuthentication extends AbstractAuthenticationToken {

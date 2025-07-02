@@ -29,7 +29,7 @@ public class User {
     @Column(name = "nickname", nullable = false)
     private String nickname;
 
-    @Column(name = "profile_img", nullable = false)
+    @Column(name = "profile_img")
     private String profileImg;
 
     @Column(name = "notification_enable", nullable = false)

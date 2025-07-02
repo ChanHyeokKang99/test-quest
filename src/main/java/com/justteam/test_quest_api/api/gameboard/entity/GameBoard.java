@@ -46,6 +46,12 @@ public class GameBoard {
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt=LocalDateTime.now();
 
+    @Column(name = "author", nullable = false)
+    private String author;
+
+    @Column(name = "views", nullable = false)
+    private int views=1;
+
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private User user;

@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+
 @Data
 public class GameBoardCreateDto {
 
@@ -22,11 +24,16 @@ public class GameBoardCreateDto {
 
     private String linkUrl;
 
-    @NotBlank(message = "썸네일을 넣어주세요")
     private MultipartFile boardImage;
 
-    @NotBlank(message = "작성자를 입력해주세요")
     private String userId;
+
+    private String author;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
+
 
     public GameBoard toEntity() {
         GameBoard board = new GameBoard();
@@ -37,6 +44,9 @@ public class GameBoardCreateDto {
         board.setType(this.type);
         board.setThumbnailUrl(this.thumbnailUrl);
         board.setLinkUrl(this.linkUrl);
+        board.setAuthor(this.author);
+        board.setStartDate(this.startDate);
+        board.setEndDate(this.endDate);
         return board;
     }
 }
