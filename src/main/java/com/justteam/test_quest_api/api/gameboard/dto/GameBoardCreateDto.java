@@ -26,6 +26,9 @@ public class GameBoardCreateDto {
 
     private MultipartFile boardImage;
 
+    private String recruitStatus;
+
+    @NotBlank(message = "게시글 작성자 아이디 입력")
     private String userId;
 
     private String author;
@@ -47,6 +50,7 @@ public class GameBoardCreateDto {
         board.setAuthor(this.author);
         board.setStartDate(this.startDate);
         board.setEndDate(this.endDate);
+        board.setRecruitStatus(this.recruitStatus);
         return board;
     }
 }

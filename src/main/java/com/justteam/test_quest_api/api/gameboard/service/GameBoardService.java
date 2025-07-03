@@ -31,13 +31,8 @@ public class GameBoardService {
     public ApiResponseDto createGameBoard(GameBoardCreateDto boardCreateDto) {
        try {
            GameBoard board = boardCreateDto.toEntity();
-           Optional<User> userOptional = userRepository.findById(boardCreateDto.getUserId());
-           if(userOptional.isPresent()) {
-               User user = userOptional.get();
-               board.setUser(user);
-           }else {
-               throw new NotFound("회원정보가 없습니다");
-           }
+           User user = userRepository.findById(boardCreateDto.getUserId()).orElseGet(User::new);
+           board.setUser(user);
            gameBoardRepository.save(board);
            return ApiResponseDto.createOk(board);
        } catch (Exception e) {
@@ -46,16 +41,19 @@ public class GameBoardService {
     }
 
     @Transactional
-    public ApiResponseDto updateGameBoard(GameBoardUpdateDto boardUpdateDto) {
-        Optional<GameBoard> gmaeUpdateBoard = gameBoardRepository.findById(boardUpdateDto.getId());
-
+    public ApiResponseDto<String> updateGameBoard(GameBoardUpdateDto boardUpdateDto) {
+        Optional<GameBoard> result = gameBoardRepository.findById(boardUpdateDto.getId());
+        GameBoard gameBoard = result.get();
         if (boardUpdateDto.getTitle() != null) {
-            boardUpdateDto.setTitle(boardUpdateDto.getTitle());
+            gameBoard.setTitle(boardUpdateDto.getTitle());
         }
         if (boardUpdateDto.getDescription() != null) {
-            boardUpdateDto.setDescription(boardUpdateDto.getDescription());
+            gameBoard.setDescription(boardUpdateDto.getDescription());
         }
-        gameBoardRepository.save(gmaeUpdateBoard.get());
+        if(boardUpdateDto.getThumbnailUrl() != null) {
+            gameBoard.setThumbnailUrl(boardUpdateDto.getThumbnailUrl());
+        }
+        gameBoardRepository.save(gameBoard);
         // 4. 업데이트된 엔티티 저장 (JPA Dirty Checking으로 인해 save() 호출 없이도 트랜잭션 종료 시 반영될 수 있지만, 명시적으로 호출하는 것이 좋습니다.)
         return ApiResponseDto.defaultOk();
     }

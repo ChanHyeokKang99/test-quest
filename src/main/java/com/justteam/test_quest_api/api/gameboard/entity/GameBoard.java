@@ -31,7 +31,7 @@ public class GameBoard {
     @Column(name = "type", nullable = false)
     private String type;
 
-    @Column(name = "thumbnail_url", nullable = false)
+    @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
     @Column(name = "link_url", nullable = false)
@@ -48,6 +48,9 @@ public class GameBoard {
 
     @Column(name = "author", nullable = false)
     private String author;
+
+    @Column(name = "recruit_status", nullable = false)
+    private String recruitStatus = "open";
 
     @Column(name = "views", nullable = false)
     private int views=1;

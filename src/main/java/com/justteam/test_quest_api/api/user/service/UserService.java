@@ -2,6 +2,9 @@ package com.justteam.test_quest_api.api.user.service;
 
 import java.util.Optional;
 
+import com.justteam.test_quest_api.api.user.dto.UserUpdateDto;
+import com.justteam.test_quest_api.common.exception.BadParameter;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +29,13 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ApiResponseDto registerUser(UserRegisterDto userRegisterDto) {
+    public ApiResponseDto<String> registerUser(UserRegisterDto userRegisterDto) {
         User user = userRegisterDto.toEntity();
         userRepository.save(user);
-        return ApiResponseDto.createOk(user);
+        return ApiResponseDto.defaultOk();
     }
+
+
     @Transactional(readOnly = true)
     public TokenDto.AccessRefreshToken loginUser(UserLoginDto userLoginDto) {
         User user = userRepository.findByEmail(userLoginDto.getEmail());
@@ -55,5 +60,20 @@ public class UserService {
         }
 
         return tokenGenerator.generateAccessToken(userId, "WEB");
+    }
+
+    public ApiResponseDto<String> updateUser(@Valid UserUpdateDto userUpdateDto) {
+        User user = userRepository.findById(userUpdateDto.getUserId()).orElse(null);
+        if (user == null) {
+            new BadParameter("회원정보가 존재하지 않습니다");
+        }
+        if(userUpdateDto.getNickname() != null) {
+            user.setNickname(userUpdateDto.getNickname());
+        }
+        if(userUpdateDto.getProfileImg() != null) {
+            user.setProfileImg(userUpdateDto.getProfileImg());
+        }
+        userRepository.save(user);
+        return ApiResponseDto.defaultOk();
     }
 }

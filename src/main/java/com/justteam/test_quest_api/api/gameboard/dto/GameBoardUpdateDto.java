@@ -11,6 +11,7 @@ public class GameBoardUpdateDto {
     private String id;
     private String title;
     private String description;
+
     private MultipartFile boardImage;
 
     @Schema(hidden = true)

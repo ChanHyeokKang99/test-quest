@@ -31,7 +31,7 @@ public class GameBoardController {
             try {
                 String imageUrl = null;
                 // DTO 내부에 있는 profileImage 필드 사용
-                if (boardAddDto.getBoardImage() != null && !boardAddDto.getBoardImage().isEmpty()) {
+                if (boardAddDto.getBoardImage() != null ) {
                     imageUrl = firebaseStorageService.uploadImage(boardAddDto.getBoardImage());
                     boardAddDto.setThumbnailUrl(imageUrl);
                 }else {
@@ -58,19 +58,23 @@ public class GameBoardController {
         return ApiResponseDto.createOk(gameBoardList);
     }
 
-    @PostMapping(value = "/update")
-    private ApiResponseDto<String> updateGameBoard(@Valid @RequestBody GameBoardUpdateDto gameBoardUpdateDto) {
+    @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    private ApiResponseDto<String> updateGameBoard(
+            @Valid GameBoardUpdateDto gameBoardUpdateDto
+    ) {
         log.info("Received request to update gameboard: {}", gameBoardUpdateDto);
         try {
-
             String imageUrl = null;
             if (gameBoardUpdateDto.getBoardImage() != null && !gameBoardUpdateDto.getBoardImage().isEmpty()) {
                 imageUrl = firebaseStorageService.uploadImage(gameBoardUpdateDto.getBoardImage());
                 gameBoardUpdateDto.setThumbnailUrl(imageUrl);
             } else {
-                return ApiResponseDto.createError("FILE_REQUIRED", "게시판 이미지는 필수입니다.");
+                // This 'else' block is problematic for optional images.
+                log.error("Image upload failed during update: {}", gameBoardUpdateDto);
+                // It currently logs an error even if no image was intended to be updated,
+                // and proceeds with the update logic potentially without an image URL.
             }
-
+            gameBoardService.updateGameBoard(gameBoardUpdateDto);
             return ApiResponseDto.defaultOk();
         } catch (IOException e) {
             log.error("Image upload failed during add: {}", e.getMessage());

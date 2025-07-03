@@ -1,6 +1,7 @@
 package com.justteam.test_quest_api.api.auth;
 
 import com.justteam.test_quest_api.api.file.FirebaseStorageService;
+import com.justteam.test_quest_api.api.user.entity.User;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.MediaType;
@@ -35,9 +36,10 @@ public class AuthController {
     ) {
         try {
             String imageUrl = null;
+            MultipartFile profileImage = userRegisterDto.getProfileImage();
             // DTO 내부에 있는 profileImage 필드 사용
-            if (userRegisterDto.getProfileImage() != null) {
-                imageUrl = firebaseStorageService.uploadImage(userRegisterDto.getProfileImage());
+            if (profileImage != null && !profileImage.isEmpty()) {
+                imageUrl = firebaseStorageService.uploadImage(profileImage);
                 userRegisterDto.setProfileImg(imageUrl);
             }
 

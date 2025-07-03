@@ -26,6 +26,7 @@ public class UserRegisterDto {
     @Schema(hidden = true)
     private String profileImg;
 
+    @Schema(description = "프로필 이미지 (선택)" )
     private MultipartFile profileImage; // <-- MultipartFile 필드 추가
 
     public User toEntity() {

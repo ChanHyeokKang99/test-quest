@@ -8,10 +8,10 @@ import lombok.Data;
 @Data
 public class UserLoginDto {
     
-    // @NotBlank(message = "이메일를 입력해주세요")
+     @NotBlank(message = "이메일를 입력해주세요")
     private String email;
 
-    // @NotBlank(message = "비밀번호를 입력하세요")
+     @NotBlank(message = "비밀번호를 입력하세요")
     private String password;
 
     public User toEntity() {
