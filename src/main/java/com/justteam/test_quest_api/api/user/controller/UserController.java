@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +39,16 @@ public class UserController {
 
             return ApiResponseDto.defaultOk();
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PostMapping(name = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
+    private ApiResponseDto<String> deleteUser(@RequestParam String userId) {
+        try {
+
+            return ApiResponseDto.defaultOk();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

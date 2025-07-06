@@ -1,18 +1,18 @@
 package com.justteam.test_quest_api.api.gameboard.service;
 
-import com.justteam.test_quest_api.api.gameboard.dto.GameBoardCreateDto;
-import com.justteam.test_quest_api.api.gameboard.dto.GameBoardListDto;
-import com.justteam.test_quest_api.api.gameboard.dto.GameBoardUpdateDto;
+import com.justteam.test_quest_api.api.gameboard.dto.*;
 import com.justteam.test_quest_api.api.gameboard.entity.GameBoard;
 import com.justteam.test_quest_api.api.gameboard.repository.GameBoardRepository;
 import com.justteam.test_quest_api.api.user.entity.User;
 import com.justteam.test_quest_api.api.user.repository.UserRepository;
 import com.justteam.test_quest_api.common.dto.ApiResponseDto;
-import com.justteam.test_quest_api.common.exception.BadParameter;
 import com.justteam.test_quest_api.common.exception.NotFound;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -59,37 +59,55 @@ public class GameBoardService {
     }
 
     @Transactional
-    public List<GameBoardListDto> listAllGameBoards(GameBoardListDto gameBoardListDto) {
-        String searchKeyword = gameBoardListDto.getSearchKeyword();
-        String searchType = gameBoardListDto.getSearchType();
-        int pageSize = gameBoardListDto.getPageSize();
-        Long lastId = gameBoardListDto.getLastId();
-        LocalDateTime lastCreateAt = gameBoardListDto.getLastCreateAt();
+    public List listAllGameBoards(GameBoardListDto gameBoardListDto) {
+        log.info(gameBoardListDto.toString());
 
-        if (searchKeyword != null && searchKeyword.trim().isEmpty()) {
-            searchKeyword = null;
+        LocalDateTime actualLastCreateAt = gameBoardListDto.getLastCreateAt();
+        String actualLastId = gameBoardListDto.getLastId();
+
+        if (gameBoardListDto.getSortOrder().equals("latest")) {
+            if (actualLastCreateAt == null) {
+                actualLastCreateAt = LocalDateTime.now(); // 또는 LocalDateTime.MAX (데이터에 따라 적절히 선택)
+            }
+            if(actualLastId == null) {
+                actualLastId = "";
+            }
+        }else {
+            if (actualLastCreateAt == null) {
+                actualLastCreateAt = LocalDateTime.MIN;
+            }
+            if (actualLastId == null) {
+                // String ID의 가장 작은 값을 찾기 어려우므로, 빈 문자열 사용 (데이터에 따라 달라질 수 있음)
+                actualLastId = "";
+            }
         }
 
-        // 정렬 순서에 따라 다른 레포지토리 메소드 호출
-        if ("oldest".equalsIgnoreCase(gameBoardListDto.getSortOrder())) {
-            log.info("조회 요청: 오래된 순 (lastId: {}, lastCreateAt: {}, keyword: {}, type: {}, size: {})",
-                    lastId, lastCreateAt, searchKeyword, searchType, pageSize);
-            return gameBoardRepository.findOldestGameBoardsWithCursor(
-                    lastId, lastCreateAt, searchKeyword, searchType, pageSize);
-        } else { // 기본값 "latest"
-            log.info("조회 요청: 최신순 (lastId: {}, lastCreateAt: {}, keyword: {}, type: {}, size: {})",
-                    lastId, lastCreateAt, searchKeyword, searchType, pageSize);
-            return gameBoardRepository.findLatestGameBoardsWithCursor(
-                    lastId, lastCreateAt, searchKeyword, searchType, pageSize);
-        }
+        Pageable pageable = PageRequest.of(0, gameBoardListDto.getPageSize());
 
+        List<GameBoardSummaryDto> gameBoards;
+        if (gameBoardListDto.getSortOrder().equals("latest")) {
+            gameBoards = gameBoardRepository.findNextPageByCreateAtDescAndOptionalKeyword(
+                    gameBoardListDto.getKeyword(), actualLastCreateAt, actualLastId, pageable);
+        } else {
+            gameBoards = gameBoardRepository.findNextPageByCreateAtAscAndOptionalKeyword(
+                    gameBoardListDto.getKeyword(), actualLastCreateAt, actualLastId, pageable);
+        }
+        return gameBoards.stream().toList();
     }
 
-//    @Transactional
-//    public ApiResponseDto updateGameBoard(GameBoardCreateDto boardCreateDto) {}
+    @Transactional
+    public GameBoardDetailSummaryDto getGameBoardDetail(String id) {
+        try {
+            Optional<GameBoardDetailSummaryDto> gameBoard = gameBoardRepository.findSummaryDtoById(id);
+            return gameBoard.isPresent() ? gameBoard.get() : null;
+        } catch (Exception e) {
+            throw new NotFound(e.getMessage());
+        }
+    }
+
 
     @Transactional
-    public ApiResponseDto deleteGameBoard(String boardId) {
+    public ApiResponseDto<String> deleteGameBoard(String boardId) {
         try {
             gameBoardRepository.deleteById(boardId);
             return ApiResponseDto.defaultOk();
@@ -97,4 +115,5 @@ public class GameBoardService {
             throw new NotFound(e.getMessage());
         }
     }
+
 }

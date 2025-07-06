@@ -34,7 +34,7 @@ public class GameBoard {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
-    @Column(name = "link_url", nullable = false)
+    @Column(name = "link_url")
     private String linkUrl;
 
     @Column(name = "start_date", nullable = false)

@@ -19,6 +19,7 @@ import com.justteam.test_quest_api.jwt.hash.SecureHashUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @Service
@@ -74,6 +75,14 @@ public class UserService {
             user.setProfileImg(userUpdateDto.getProfileImg());
         }
         userRepository.save(user);
+        return ApiResponseDto.defaultOk();
+    }
+
+    public ApiResponseDto<String> deleteUser(String userId) {
+        Optional<User> user = userRepository.findById(userId);
+        if (user.isEmpty()) {
+            userRepository.deleteById(userId);
+        }
         return ApiResponseDto.defaultOk();
     }
 }

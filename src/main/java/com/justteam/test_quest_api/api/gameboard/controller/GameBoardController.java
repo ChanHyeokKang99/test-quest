@@ -2,11 +2,11 @@ package com.justteam.test_quest_api.api.gameboard.controller;
 
 import com.justteam.test_quest_api.api.file.FirebaseStorageService;
 import com.justteam.test_quest_api.api.gameboard.dto.GameBoardCreateDto;
+import com.justteam.test_quest_api.api.gameboard.dto.GameBoardDetailSummaryDto;
 import com.justteam.test_quest_api.api.gameboard.dto.GameBoardListDto;
 import com.justteam.test_quest_api.api.gameboard.dto.GameBoardUpdateDto;
 import com.justteam.test_quest_api.api.gameboard.service.GameBoardService;
 import com.justteam.test_quest_api.common.dto.ApiResponseDto;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,11 +51,22 @@ public class GameBoardController {
     }
 
     @GetMapping(value = "/list")
-    private ApiResponseDto<List<GameBoardListDto>> listGameBoard(@Valid @ModelAttribute GameBoardListDto gameBoardListDto) {
+    private ApiResponseDto<List> listGameBoard(@Valid @ModelAttribute GameBoardListDto gameBoardListDto) {
         log.info("Received request to list all gameboards");
-        List<GameBoardListDto>  gameBoardList = gameBoardService.listAllGameBoards(gameBoardListDto);
+        List gameBoardList = gameBoardService.listAllGameBoards(gameBoardListDto);
 
         return ApiResponseDto.createOk(gameBoardList);
+    }
+
+    @GetMapping(value = "/{id}")
+    private ApiResponseDto  getGameBoardDetail(@PathVariable("id") String id) {
+        try {
+            GameBoardDetailSummaryDto gameBoard = gameBoardService.getGameBoardDetail(id);
+            return ApiResponseDto.createOk(gameBoard);
+        } catch (Exception e) {
+            log.error("Game board id not found: {}", id);
+            return ApiResponseDto.createError("BOARD_DETAIL_FAILED", "조회 상세 내역이 없습니다");
+        }
     }
 
     @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -69,10 +80,7 @@ public class GameBoardController {
                 imageUrl = firebaseStorageService.uploadImage(gameBoardUpdateDto.getBoardImage());
                 gameBoardUpdateDto.setThumbnailUrl(imageUrl);
             } else {
-                // This 'else' block is problematic for optional images.
                 log.error("Image upload failed during update: {}", gameBoardUpdateDto);
-                // It currently logs an error even if no image was intended to be updated,
-                // and proceeds with the update logic potentially without an image URL.
             }
             gameBoardService.updateGameBoard(gameBoardUpdateDto);
             return ApiResponseDto.defaultOk();
