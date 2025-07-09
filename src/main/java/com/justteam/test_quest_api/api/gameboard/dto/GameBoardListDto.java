@@ -24,8 +24,8 @@ public class GameBoardListDto {
     private String keyword; // "title" 또는 "author"
 
     // 한 페이지당 게시글 수
-    @Min(value = 10, message = "페이지 크기는 1 이상이어야 합니다.")
-    private int pageSize = 10; // 기본값 10
+    @Min(value = 5, message = "페이지 크기는 1 이상이어야 합니다.")
+    private int pageSize = 5; // 기본값 10
 
     // 정렬 순서 ("latest" 또는 "oldest")
     @Schema(defaultValue = "latest")

@@ -20,12 +20,12 @@ public class GameBoardSummaryDto {
     private int views;
     private LocalDateTime createAt;
     private String recruitStatus;
-    private String userId; // user.userId
+    private String nickname; // user.userId
 
     // 모든 필드를 받는 생성자 (JPQL NEW 키워드 사용 시 필수)
     public GameBoardSummaryDto(String id, String title, String description, String platform, String type,
                                String thumbnailUrl, String linkUrl, LocalDate startDate, LocalDate endDate,
-                               String author, int views, LocalDateTime createAt, String recruitStatus, String userId) {
+                               String author, int views, LocalDateTime createAt, String recruitStatus, String nickname) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -39,7 +39,7 @@ public class GameBoardSummaryDto {
         this.views = views;
         this.createAt = createAt;
         this.recruitStatus = recruitStatus;
-        this.userId = userId;
+        this.nickname = nickname;
     }
 
 }

@@ -2,8 +2,10 @@ package com.justteam.test_quest_api.api.user.service;
 
 import java.util.Optional;
 
+import com.justteam.test_quest_api.api.user.dto.UserInfoDto;
 import com.justteam.test_quest_api.api.user.dto.UserUpdateDto;
 import com.justteam.test_quest_api.common.exception.BadParameter;
+import com.justteam.test_quest_api.common.exception.NotFound;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,5 +86,10 @@ public class UserService {
             userRepository.deleteById(userId);
         }
         return ApiResponseDto.defaultOk();
+    }
+
+    public UserInfoDto getUserInfo(String userId) {
+        return userRepository.findUserInfoDtoByUserId(userId)
+                .orElseThrow(() -> new NotFound("User not found with ID: " + userId));
     }
 }

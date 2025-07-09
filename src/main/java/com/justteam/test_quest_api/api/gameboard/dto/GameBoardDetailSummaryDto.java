@@ -21,11 +21,11 @@ public class GameBoardDetailSummaryDto {
     private int views;
     private LocalDateTime createAt;
     private String recruitStatus;
-    private String userId;
+    private String nickname;
 
     public GameBoardDetailSummaryDto(String id, String title, String description, String platform, String type,
                                String thumbnailUrl, String linkUrl, LocalDate startDate, LocalDate endDate,
-                               String author, int views, LocalDateTime createAt, String recruitStatus, String userId) {
+                               String author, int views, LocalDateTime createAt, String recruitStatus, String nickname) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -39,6 +39,6 @@ public class GameBoardDetailSummaryDto {
         this.views = views;
         this.createAt = createAt;
         this.recruitStatus = recruitStatus;
-        this.userId = userId;
+        this.nickname = nickname;
     }
 }

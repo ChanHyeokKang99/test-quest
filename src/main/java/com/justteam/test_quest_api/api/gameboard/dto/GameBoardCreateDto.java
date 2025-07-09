@@ -28,9 +28,6 @@ public class GameBoardCreateDto {
 
     private String recruitStatus;
 
-    @NotBlank(message = "게시글 작성자 아이디 입력")
-    private String userId;
-
     private String author;
 
     private LocalDate startDate;

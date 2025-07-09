@@ -16,14 +16,14 @@ public interface GameBoardRepository extends JpaRepository<GameBoard, String> {
 
     @Query("SELECT new com.justteam.test_quest_api.api.gameboard.dto.GameBoardDetailSummaryDto(" +
             "g.id, g.title, g.description, g.platform, g.type, g.thumbnailUrl, g.linkUrl, " +
-            "g.startDate, g.endDate, g.author, g.views, g.createAt, g.recruitStatus, g.user.userId) " +
+            "g.startDate, g.endDate, g.author, g.views, g.createAt, g.recruitStatus, g.user.nickname) " +
             "FROM GameBoard g " +
             "WHERE g.id=:boardId")
     Optional<GameBoardDetailSummaryDto> findSummaryDtoById(@Param("boardId") String boardId);
 
 
 
-    @Query("SELECT new com.justteam.test_quest_api.api.gameboard.dto.GameBoardSummaryDto(g.id, g.title, g.description, g.platform, g.type, g.thumbnailUrl, g.linkUrl, g.startDate, g.endDate, g.author, g.views, g.createAt, g.recruitStatus, g.user.userId) " +
+    @Query("SELECT new com.justteam.test_quest_api.api.gameboard.dto.GameBoardSummaryDto(g.id, g.title, g.description, g.platform, g.type, g.thumbnailUrl, g.linkUrl, g.startDate, g.endDate, g.author, g.views, g.createAt, g.recruitStatus, g.user.nickname) " +
             "FROM GameBoard g " +
             "WHERE (:keyword IS NULL OR :keyword = '' OR g.title LIKE %:keyword% OR CAST(g.user.userId AS string) LIKE %:keyword%) " + // g.user.userId -> g.userId (일반적인 경우)
             "AND (g.createAt, g.id) > (:lastCreateAt, :lastId) " + // 오름차순 커서 조건
@@ -33,7 +33,7 @@ public interface GameBoardRepository extends JpaRepository<GameBoard, String> {
                                                                            @Param("lastCreateAt") LocalDateTime lastCreateAt,
                                                                            @Param("lastId") String lastId, Pageable pageable);
 
-    @Query("SELECT new com.justteam.test_quest_api.api.gameboard.dto.GameBoardSummaryDto(g.id, g.title, g.description, g.platform, g.type, g.thumbnailUrl, g.linkUrl, g.startDate, g.endDate, g.author, g.views, g.createAt, g.recruitStatus, g.user.userId) " +
+    @Query("SELECT new com.justteam.test_quest_api.api.gameboard.dto.GameBoardSummaryDto(g.id, g.title, g.description, g.platform, g.type, g.thumbnailUrl, g.linkUrl, g.startDate, g.endDate, g.author, g.views, g.createAt, g.recruitStatus, g.user.nickname) " +
             "FROM GameBoard g " +
             "WHERE (:keyword IS NULL OR :keyword = '' OR g.title LIKE %:keyword% OR CAST(g.user.userId AS string) LIKE %:keyword%) " + // g.user.userId -> g.userId (일반적인 경우)
             "AND (g.createAt, g.id) < (:lastCreateAt, :lastId) " + // 내림차순 커서 조건

@@ -25,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final TokenGenerator tokenGenerator;
-    private final UserRepository userRepository;
     
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -54,15 +53,16 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .formLogin((AbstractHttpConfigurer::disable))
                 .httpBasic(AbstractHttpConfigurer::disable)
-//                .addFilterBefore(new JwtAuthenticationFilter(tokenGenerator, userRepository),
-//                        UsernamePasswordAuthenticationFilter.class)
+              .addFilterBefore(
+                       new JwtAuthenticationFilter(tokenGenerator),
+                       UsernamePasswordAuthenticationFilter.class
+               )
                 .authorizeHttpRequests(auth -> auth.requestMatchers(
                     "/api/v1/auth/**",
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html"
-                ).permitAll().anyRequest().permitAll()
-//                        .authenticated()
+                ).permitAll().anyRequest().authenticated()
                 )
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable);

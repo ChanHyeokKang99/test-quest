@@ -7,13 +7,13 @@ import com.justteam.test_quest_api.api.user.entity.User;
 import com.justteam.test_quest_api.api.user.repository.UserRepository;
 import com.justteam.test_quest_api.common.dto.ApiResponseDto;
 import com.justteam.test_quest_api.common.exception.NotFound;
-import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
+import com.justteam.test_quest_api.common.web.context.RequestHeaderUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,10 +31,10 @@ public class GameBoardService {
     public ApiResponseDto createGameBoard(GameBoardCreateDto boardCreateDto) {
        try {
            GameBoard board = boardCreateDto.toEntity();
-           User user = userRepository.findById(boardCreateDto.getUserId()).orElseGet(User::new);
+           User user = userRepository.findById(RequestHeaderUtils.getUserId()).orElseGet(User::new);
            board.setUser(user);
            gameBoardRepository.save(board);
-           return ApiResponseDto.createOk(board);
+           return ApiResponseDto.createOk(null);
        } catch (Exception e) {
            throw new NotFound(e.getMessage());
        }
@@ -54,45 +54,57 @@ public class GameBoardService {
             gameBoard.setThumbnailUrl(boardUpdateDto.getThumbnailUrl());
         }
         gameBoardRepository.save(gameBoard);
-        // 4. 업데이트된 엔티티 저장 (JPA Dirty Checking으로 인해 save() 호출 없이도 트랜잭션 종료 시 반영될 수 있지만, 명시적으로 호출하는 것이 좋습니다.)
         return ApiResponseDto.defaultOk();
     }
 
-    @Transactional
-    public List listAllGameBoards(GameBoardListDto gameBoardListDto) {
-        log.info(gameBoardListDto.toString());
+    @Transactional(readOnly = true) // 읽기 전용 작업이므로 readOnly = true 권장
+    public GameBoardPageResponse listAllGameBoards(GameBoardListDto gameBoardListDto) {
 
         LocalDateTime actualLastCreateAt = gameBoardListDto.getLastCreateAt();
         String actualLastId = gameBoardListDto.getLastId();
+        String sortOrder = gameBoardListDto.getSortOrder();
+        String keyword = gameBoardListDto.getKeyword();
+        int pageSize = gameBoardListDto.getPageSize();
 
-        if (gameBoardListDto.getSortOrder().equals("latest")) {
+        if (sortOrder.equals("latest")) {
             if (actualLastCreateAt == null) {
-                actualLastCreateAt = LocalDateTime.now(); // 또는 LocalDateTime.MAX (데이터에 따라 적절히 선택)
+                actualLastCreateAt = LocalDateTime.now();
             }
-            if(actualLastId == null) {
+            if (actualLastId == null || actualLastId.isEmpty()) {
                 actualLastId = "";
             }
-        }else {
+        } else {
             if (actualLastCreateAt == null) {
                 actualLastCreateAt = LocalDateTime.MIN;
             }
-            if (actualLastId == null) {
-                // String ID의 가장 작은 값을 찾기 어려우므로, 빈 문자열 사용 (데이터에 따라 달라질 수 있음)
+            if (actualLastId == null || actualLastId.isEmpty()) {
                 actualLastId = "";
             }
         }
 
-        Pageable pageable = PageRequest.of(0, gameBoardListDto.getPageSize());
+        Pageable pageable = PageRequest.of(0, pageSize + 1);
 
-        List<GameBoardSummaryDto> gameBoards;
-        if (gameBoardListDto.getSortOrder().equals("latest")) {
-            gameBoards = gameBoardRepository.findNextPageByCreateAtDescAndOptionalKeyword(
-                    gameBoardListDto.getKeyword(), actualLastCreateAt, actualLastId, pageable);
-        } else {
-            gameBoards = gameBoardRepository.findNextPageByCreateAtAscAndOptionalKeyword(
-                    gameBoardListDto.getKeyword(), actualLastCreateAt, actualLastId, pageable);
+        List<GameBoardSummaryDto> gameBoardsRaw;
+
+        if (sortOrder.equals("latest")) {
+            gameBoardsRaw = gameBoardRepository.findNextPageByCreateAtDescAndOptionalKeyword(
+                    keyword, actualLastCreateAt, actualLastId, pageable);
+        } else { // "oldest"
+            gameBoardsRaw = gameBoardRepository.findNextPageByCreateAtAscAndOptionalKeyword(
+                    keyword, actualLastCreateAt, actualLastId, pageable);
         }
-        return gameBoards.stream().toList();
+
+        boolean hasNext = false;
+        List<GameBoardSummaryDto> resultGameBoards;
+
+        if (gameBoardsRaw.size() > pageSize) {
+            hasNext = true;
+            resultGameBoards = gameBoardsRaw.subList(0, pageSize);
+        } else {
+            resultGameBoards = gameBoardsRaw;
+        }
+
+        return new GameBoardPageResponse(resultGameBoards, hasNext);
     }
 
     @Transactional

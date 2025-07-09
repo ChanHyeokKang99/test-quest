@@ -5,6 +5,7 @@ import com.justteam.test_quest_api.api.user.repository.UserRepository;
 import com.justteam.test_quest_api.api.user.service.UserService;
 import com.justteam.test_quest_api.jwt.TokenGenerator;
 import com.justteam.test_quest_api.jwt.authentication.JwtAuthentication;
+import com.justteam.test_quest_api.jwt.authentication.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,40 +27,19 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenGenerator tokenGenerator;
-    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jwtToken = tokenGenerator.getToken(request);
+        String token = tokenGenerator.getToken(request);
 
-        try {
-            // 핵심 수정: jwtToken이 null이 아닐 때만 유효성 검증 로직을 실행합니다.
-            if (jwtToken != null) { // 이 조건문이 빠져 있었습니다!
-                JwtAuthentication userId = tokenGenerator.validateToken(jwtToken);
-                log.debug("userId : {}", userId);
 
-                if (userId != null) {
-
-//                    Optional<User> user = userRepository.findById(userId);
-//                    if(user.isPresent()){
-//                        Authentication authentication = new UsernamePasswordAuthenticationToken(
-//                                user, null
-//                        );
-//                        SecurityContextHolder.getContext().setAuthentication(authentication);
-//                        log.info("인증된 사용자: {}", user.get().getUserId());
-//
-//                    }else {
-//                        log.debug("존재하지 않은 회원입니다.");
-//                    }
-                } else {
-                    log.debug("요청에 JWT 토큰이 없습니다. URL: {}", request.getRequestURI());
-                }
-            }else {
-                log.debug("사용자 정보가 없습니다.");
+        if(token!= null) {
+            JwtAuthentication authentication = tokenGenerator.validateToken(token);
+            if(authentication != null) {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (Exception e) {
-            log.error("JWT 인증 중 오류 발생: "+ e);
         }
-     filterChain.doFilter(request, response);
+
+        filterChain.doFilter(request, response);
     }
 }
