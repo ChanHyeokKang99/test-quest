@@ -57,52 +57,43 @@ public class GameBoardService {
         return ApiResponseDto.defaultOk();
     }
 
-    @Transactional(readOnly = true) // 읽기 전용 작업이므로 readOnly = true 권장
+    @Transactional(readOnly = true)
     public GameBoardPageResponse listAllGameBoards(GameBoardListDto gameBoardListDto) {
-
-        LocalDateTime actualLastCreateAt = gameBoardListDto.getLastCreateAt();
-        String actualLastId = gameBoardListDto.getLastId();
         String sortOrder = gameBoardListDto.getSortOrder();
         String keyword = gameBoardListDto.getKeyword();
         int pageSize = gameBoardListDto.getPageSize();
 
-        if (sortOrder.equals("latest")) {
-            if (actualLastCreateAt == null) {
-                actualLastCreateAt = LocalDateTime.now();
-            }
-            if (actualLastId == null || actualLastId.isEmpty()) {
-                actualLastId = "";
-            }
-        } else {
-            if (actualLastCreateAt == null) {
-                actualLastCreateAt = LocalDateTime.MIN;
-            }
-            if (actualLastId == null || actualLastId.isEmpty()) {
-                actualLastId = "";
-            }
-        }
-
+        // 다음 페이지 존재 여부 확인을 위해 요청한 사이즈보다 1개 더 조회
         Pageable pageable = PageRequest.of(0, pageSize + 1);
 
         List<GameBoardSummaryDto> gameBoardsRaw;
 
-        if (sortOrder.equals("latest")) {
-            gameBoardsRaw = gameBoardRepository.findNextPageByCreateAtDescAndOptionalKeyword(
-                    keyword, actualLastCreateAt, actualLastId, pageable);
-        } else { // "oldest"
-            gameBoardsRaw = gameBoardRepository.findNextPageByCreateAtAscAndOptionalKeyword(
-                    keyword, actualLastCreateAt, actualLastId, pageable);
+        // lastCreateAt 값이 없으면 첫 페이지로 간주
+        if (gameBoardListDto.getLastCreateAt() == null) {
+            if ("latest".equals(sortOrder)) {
+                gameBoardsRaw = gameBoardRepository.findFirstPageByCreateAtDesc(keyword, pageable);
+            } else {
+                gameBoardsRaw = gameBoardRepository.findFirstPageByCreateAtAsc(keyword, pageable);
+            }
+        }
+        // lastCreateAt 값이 있으면 다음 페이지로 간주 (커서 사용)
+        else {
+            LocalDateTime lastCreateAt = gameBoardListDto.getLastCreateAt();
+            String lastId = gameBoardListDto.getLastId(); // lastId를 여기서 사용
+
+            if ("latest".equals(sortOrder)) {
+                gameBoardsRaw = gameBoardRepository.findNextPageByCreateAtDescAndOptionalKeyword(
+                        keyword, lastCreateAt, lastId, pageable);
+            } else {
+                gameBoardsRaw = gameBoardRepository.findNextPageByCreateAtAscAndOptionalKeyword(
+                        keyword, lastCreateAt, lastId, pageable);
+            }
         }
 
-        boolean hasNext = false;
-        List<GameBoardSummaryDto> resultGameBoards;
-
-        if (gameBoardsRaw.size() > pageSize) {
-            hasNext = true;
-            resultGameBoards = gameBoardsRaw.subList(0, pageSize);
-        } else {
-            resultGameBoards = gameBoardsRaw;
-        }
+        // 다음 페이지 존재 여부 계산
+        boolean hasNext = gameBoardsRaw.size() > pageSize;
+        // 실제 반환할 리스트는 요청된 페이지 사이즈만큼 자르기
+        List<GameBoardSummaryDto> resultGameBoards = hasNext ? gameBoardsRaw.subList(0, pageSize) : gameBoardsRaw;
 
         return new GameBoardPageResponse(resultGameBoards, hasNext);
     }
