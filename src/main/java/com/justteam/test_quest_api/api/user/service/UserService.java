@@ -6,6 +6,7 @@ import com.justteam.test_quest_api.api.user.dto.UserInfoDto;
 import com.justteam.test_quest_api.api.user.dto.UserUpdateDto;
 import com.justteam.test_quest_api.common.exception.BadParameter;
 import com.justteam.test_quest_api.common.exception.NotFound;
+import com.justteam.test_quest_api.common.web.context.RequestHeaderUtils;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,7 +67,7 @@ public class UserService {
     }
 
     public ApiResponseDto<String> updateUser(@Valid UserUpdateDto userUpdateDto) {
-        User user = userRepository.findById(userUpdateDto.getUserId()).orElse(null);
+        User user = userRepository.findById(RequestHeaderUtils.getUserId()).orElse(null);
         if (user == null) {
             new BadParameter("회원정보가 존재하지 않습니다");
         }
@@ -82,9 +83,7 @@ public class UserService {
 
     public ApiResponseDto<String> deleteUser(String userId) {
         Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            userRepository.deleteById(userId);
-        }
+        userRepository.deleteById(user.get().getUserId());
         return ApiResponseDto.defaultOk();
     }
 

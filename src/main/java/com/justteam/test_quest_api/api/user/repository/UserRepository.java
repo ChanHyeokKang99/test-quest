@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String> {
     User findByEmail(String email);
 
-    @Query("SELECT new com.justteam.test_quest_api.api.user.dto.UserInfoDto(u.name, u.nickname, u.profileImg) FROM User u WHERE u.userId = :userId")
+    @Query("SELECT new com.justteam.test_quest_api.api.user.dto.UserInfoDto(u.name, u.profileImg, u.nickname) FROM User u WHERE u.userId = :userId")
     Optional<UserInfoDto> findUserInfoDtoByUserId(@Param("userId") String userId);
 
 }

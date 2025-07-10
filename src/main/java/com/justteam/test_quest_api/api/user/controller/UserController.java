@@ -27,7 +27,7 @@ public class UserController {
     private final UserService userService;
     private final FirebaseStorageService firebaseStorageService;
 
-    @PostMapping(name = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     private ApiResponseDto<String> updateUser(@Valid UserUpdateDto userUpdateDto) {
         try {
             String imageUrl = null;
@@ -45,7 +45,7 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/getinfo", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/getinfo")
     private ApiResponseDto<UserInfoDto> getUser() {
         if(RequestHeaderUtils.getUserId()==null){
             return ApiResponseDto.createError("403","사용자 정보없음");
@@ -54,10 +54,10 @@ public class UserController {
         return ApiResponseDto.createOk(user);
     }
 
-    @PostMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
-    private ApiResponseDto<String> deleteUser(@RequestParam String userId) {
+    @PostMapping(value = "/delete")
+    private ApiResponseDto deleteUser() {
         try {
-
+            userService.deleteUser(RequestHeaderUtils.getUserId());
             return ApiResponseDto.defaultOk();
         } catch (Exception e) {
             throw new RuntimeException(e);

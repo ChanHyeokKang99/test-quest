@@ -7,8 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class UserUpdateDto {
-    @NotBlank(message = "회원아이디를 입력하세요")
-    private String userId;
     private String nickname;
     private MultipartFile profileImage;
 
