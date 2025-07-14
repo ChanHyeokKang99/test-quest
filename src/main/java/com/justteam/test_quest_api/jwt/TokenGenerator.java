@@ -66,7 +66,7 @@ public class TokenGenerator {
                 .claim("userId", userId)
                 .claim("tokenType", tokenType)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + tokenExpiresIn * 1000L))
+                .expiration(new Date(System.currentTimeMillis() + tokenExpiresIn * 10L))
                 .signWith(getSecretKey())
                 .header().add("typ", "JWT")
                 .and()
