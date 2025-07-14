@@ -76,6 +76,10 @@ public class TokenGenerator {
     }
 
     public String validateJwtRefreshToken(String refreshToken) {
+        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
+            refreshToken = refreshToken.substring(7);
+        }
+        
         try {
             // verifyAndGetClaims 메서드에서 이미 토큰 유효성 검증 및 파싱이 이루어집니다.
             final Claims claims = this.verifyAndGetClaims(refreshToken);

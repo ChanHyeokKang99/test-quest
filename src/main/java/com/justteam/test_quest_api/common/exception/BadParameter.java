@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BadParameter extends ClientError {
     public BadParameter(String message) {
-        this.errorCode = "BadParameter";
+        this.errorCode = "400";
         this.errorMessage = message;
     }
 }

@@ -51,7 +51,7 @@ public class ApiCommonAdvice {
     @ExceptionHandler({InvalidTokenException.class})
     public ApiResponseDto<String> handleInvalidToken(InvalidTokenException e) {
         return ApiResponseDto.createError(
-                "InvalidToken",
+                "401",
                 e.getMessage()
         );
     }

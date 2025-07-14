@@ -39,9 +39,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
             filterChain.doFilter(request, response);
         } catch (InvalidTokenException e) {
-            handleTokenException(response, e.getMessage(), "InvalidToken");
+            handleTokenException(response, e.getMessage(), "401");
         } catch (ExpiredJwtException e) {
-            handleTokenException(response, "토큰이 만료되었습니다.", "TokenExpired");
+            handleTokenException(response, "토큰이 만료되었습니다.", "401");
         } catch (Exception e) {
             log.error("JWT 인증 처리 중 오류 발생", e);
             filterChain.doFilter(request, response);

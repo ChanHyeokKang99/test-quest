@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.justteam.test_quest_api.api.user.dto.UserInfoDto;
 import com.justteam.test_quest_api.api.user.dto.UserUpdateDto;
 import com.justteam.test_quest_api.common.exception.BadParameter;
+import com.justteam.test_quest_api.common.exception.InvalidTokenException;
 import com.justteam.test_quest_api.common.exception.NotFound;
 import com.justteam.test_quest_api.common.web.context.RequestHeaderUtils;
 import jakarta.validation.Valid;
@@ -52,18 +53,27 @@ public class UserService {
         return tokenGenerator.generateAccessRefreshToken(user.getUserId(), "WEB");
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public TokenDto.AccessToken refresh(String refreshToken) {
-        String userId = tokenGenerator.validateJwtRefreshToken(refreshToken);
-        if (userId == null) {
-            throw new Error("토큰이 유효하지 않습니다.");
+        try {
+            String userId = tokenGenerator.validateJwtRefreshToken(refreshToken);
+            if (userId == null) {
+                throw new InvalidTokenException("유효하지 않은 리프레시 토큰입니다.");
+            }
+            
+            // 사용자 존재 여부 확인
+            User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFound("사용자를 찾을 수 없습니다."));
+            
+            // 새로운 액세스 토큰 발급
+            return tokenGenerator.generateAccessToken(userId, "WEB");
+        } catch (InvalidTokenException e) {
+            log.error("토큰 갱신 실패: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("토큰 갱신 중 오류 발생: {}", e.getMessage());
+            throw new InvalidTokenException("토큰 갱신에 실패했습니다.");
         }
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            throw new Error("사용자를 찾을 수 없습니다.");
-        }
-
-        return tokenGenerator.generateAccessToken(userId, "WEB");
     }
 
     public ApiResponseDto<String> updateUser(@Valid UserUpdateDto userUpdateDto) {

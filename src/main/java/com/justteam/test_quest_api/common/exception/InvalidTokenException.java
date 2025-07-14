@@ -7,7 +7,7 @@ public class InvalidTokenException extends RuntimeException {
     public InvalidTokenException(String message) {
         super(message);
         this.errorMessage = message;
-        this.errorCode = "InvalidToken";
+        this.errorCode = "401";
     }
 
     public String getErrorCode() {

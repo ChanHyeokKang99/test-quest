@@ -1,6 +1,5 @@
 package com.justteam.test_quest_api.api.gameboard.dto;
 
-import com.justteam.test_quest_api.api.gameboard.entity.GameBoard;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
