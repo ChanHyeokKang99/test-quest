@@ -28,7 +28,7 @@ public class SecurityConfig {
     private final TokenGenerator tokenGenerator;
     
     @Bean
-    public ObjectMapper objectMapper() {
+    public ObjectMapper securityObjectMapper() {
         return new ObjectMapper();
     }
     
