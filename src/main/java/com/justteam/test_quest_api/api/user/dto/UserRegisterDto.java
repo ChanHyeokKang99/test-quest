@@ -9,25 +9,30 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
+@Schema(description = "사용자 등록 DTO")
 public class UserRegisterDto {
 
     @NotBlank(message = "이름을 입력하세요")
+    @Schema(description = "사용자 이름", required = true, nullable = false)
     private String name;
 
     @NotBlank(message = "이메일을 입력하세요")
+    @Schema(description = "이메일", required = true, nullable = false)
     private String email;
 
     @NotBlank(message = "비밀번호를 입력하세요")
+    @Schema(description = "비밀번호", required = true, nullable = false)
     private String password;
 
     @NotBlank(message = "닉네임을 입력해주세요")
+    @Schema(description = "닉네임", required = true, nullable = false)
     private String nickname;
 
-    @Schema(hidden = true)
+    @Schema(description = "프로필 이미지 URL", hidden = true)
     private String profileImg;
 
-    @Schema(description = "프로필 이미지 (선택)" )
-    private MultipartFile profileImage; // <-- MultipartFile 필드 추가
+    @Schema(description = "프로필 이미지 파일", nullable = true)
+    private MultipartFile profileImage;
 
     public User toEntity() {
         User user = new User();

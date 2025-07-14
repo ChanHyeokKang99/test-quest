@@ -2,6 +2,7 @@ package com.justteam.test_quest_api.config;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.justteam.test_quest_api.api.user.repository.UserRepository;
 import com.justteam.test_quest_api.jwt.TokenGenerator;
 import com.justteam.test_quest_api.jwt.filter.JwtAuthenticationFilter;
@@ -27,6 +28,11 @@ public class SecurityConfig {
     private final TokenGenerator tokenGenerator;
     
     @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+    
+    @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
@@ -42,7 +48,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain applicationSecurity(HttpSecurity http) throws Exception {
+    public SecurityFilterChain applicationSecurity(HttpSecurity http, ObjectMapper objectMapper) throws Exception {
         http
             .cors(httpSecurityCorsConfigurer -> {
                 httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource());
@@ -54,7 +60,7 @@ public class SecurityConfig {
                 .formLogin((AbstractHttpConfigurer::disable))
                 .httpBasic(AbstractHttpConfigurer::disable)
               .addFilterBefore(
-                       new JwtAuthenticationFilter(tokenGenerator),
+                       new JwtAuthenticationFilter(tokenGenerator, objectMapper),
                        UsernamePasswordAuthenticationFilter.class
                )
                 .authorizeHttpRequests(auth -> auth.requestMatchers(

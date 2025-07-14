@@ -4,6 +4,7 @@ import com.justteam.test_quest_api.advice.parameter.ParameterErrorDto;
 import com.justteam.test_quest_api.common.dto.ApiResponseDto;
 import com.justteam.test_quest_api.common.exception.BadParameter;
 import com.justteam.test_quest_api.common.exception.ClientError;
+import com.justteam.test_quest_api.common.exception.InvalidTokenException;
 import com.justteam.test_quest_api.common.exception.NotFound;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
@@ -46,6 +47,15 @@ public class ApiCommonAdvice {
         );
     }
 
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler({InvalidTokenException.class})
+    public ApiResponseDto<String> handleInvalidToken(InvalidTokenException e) {
+        return ApiResponseDto.createError(
+                "InvalidToken",
+                e.getMessage()
+        );
+    }
+
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({NoResourceFoundException.class})
     public ApiResponseDto<String> handleNoResourceFoundException(NoResourceFoundException e) {
@@ -71,4 +81,5 @@ public class ApiCommonAdvice {
                 "ServerError",
                 "서버 에러입니다.");
     }
+
 }

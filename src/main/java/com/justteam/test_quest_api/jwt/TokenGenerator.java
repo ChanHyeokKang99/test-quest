@@ -6,9 +6,11 @@ import java.util.List;
 
 import javax.crypto.SecretKey;
 
-import com.justteam.test_quest_api.common.exception.TokenExpired;
+import com.justteam.test_quest_api.common.exception.InvalidTokenException;
 import com.justteam.test_quest_api.jwt.authentication.JwtAuthentication;
 import com.justteam.test_quest_api.jwt.authentication.UserPrincipal;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -74,54 +76,48 @@ public class TokenGenerator {
     }
 
     public String validateJwtRefreshToken(String refreshToken) {
-        // verifyAndGetClaims 메서드에서 이미 토큰 유효성 검증 및 파싱이 이루어집니다.
-        final Claims claims = this.verifyAndGetClaims(refreshToken);
-        if (claims == null) {
-            return null; // 클레임을 얻지 못했다면 유효하지 않은 토큰
+        try {
+            // verifyAndGetClaims 메서드에서 이미 토큰 유효성 검증 및 파싱이 이루어집니다.
+            final Claims claims = this.verifyAndGetClaims(refreshToken);
+            
+            String userId = claims.get("userId", String.class);
+            String tokenType = claims.get("tokenType", String.class);
+    
+            // 토큰 타입이 "refresh"인지 확인
+            if (!"refresh".equals(tokenType)) {
+                log.debug("Token Type이 'refresh'가 아닙니다. tokenType: {}", tokenType);
+                throw new InvalidTokenException("유효하지 않은 리프레시 토큰입니다.");
+            }
+    
+            return userId;
+        } catch (ExpiredJwtException e) {
+            log.debug("Refresh Token이 만료되었습니다.");
+            throw new InvalidTokenException("리프레시 토큰이 만료되었습니다.");
+        } catch (JwtException e) {
+            throw new InvalidTokenException("유효하지 않은 리프레시 토큰입니다.");
         }
-
-        // 토큰 만료 시간 검증
-        Date expirationDate = claims.getExpiration();
-        if (expirationDate == null || expirationDate.before(new Date())) {
-            log.debug("Refresh Token이 만료되었습니다. userId: {}", claims.get("userId", String.class));
-            return null;
-        }
-
-        String userId = claims.get("userId", String.class);
-        String tokenType = claims.get("tokenType", String.class);
-
-        // 토큰 타입이 "refresh"인지 확인
-        if (!"refresh".equals(tokenType)) {
-            log.debug("Token Type이 'refresh'가 아닙니다. tokenType: {}", tokenType);
-            return null;
-        }
-
-        return userId;
     }
 
     public JwtAuthentication validateToken(String token) {
-        String userId = null;
-
-        final Claims claims = this.verifyAndGetClaims(token);
-        if (claims == null) {
-            return null;
+        try {
+            final Claims claims = this.verifyAndGetClaims(token);
+            
+            String userId = claims.get("userId", String.class);
+            String tokenType = claims.get("tokenType", String.class);
+            
+            if (!"access".equals(tokenType)) {
+                throw new InvalidTokenException("유효하지 않은 액세스 토큰입니다.");
+            }
+            
+            UserPrincipal principal = new UserPrincipal(userId);
+            return new JwtAuthentication(principal, token, getGrantedAuthorities("user"));
+            
+        } catch (ExpiredJwtException e) {
+            log.debug("Access Token이 만료되었습니다.");
+            throw new InvalidTokenException("액세스 토큰이 만료되었습니다.");
+        } catch (JwtException e) {
+            throw new InvalidTokenException("유효하지 않은 액세스 토큰입니다.");
         }
-
-        Date expirationDate = claims.getExpiration();
-        if (expirationDate == null || expirationDate.before(new Date())) {
-            throw new TokenExpired("Token Expired");
-        }
-
-        userId = claims.get("userId", String.class);
-
-        String tokenType = claims.get("tokenType", String.class);
-        if (!"access".equals(tokenType)) {
-            return null;
-        }
-
-        UserPrincipal principal = new UserPrincipal(userId);
-
-        return new JwtAuthentication(principal, token, getGrantedAuthorities("user"));
     }
 
     private List<GrantedAuthority> getGrantedAuthorities(String role) {
@@ -135,18 +131,18 @@ public class TokenGenerator {
 
 
     private Claims verifyAndGetClaims(String token) {
-        Claims claims = null;
-
         try {
-            claims = Jwts.parser()
-            .verifyWith(getSecretKey())
-            .build()
-            .parseSignedClaims(token)
-            .getPayload();
-        } catch (Exception e) {
-            claims = null;
+            return Jwts.parser()
+                .verifyWith(getSecretKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        } catch (ExpiredJwtException e) {
+            // 이 예외는 상위 메서드에서 처리하기 위해 다시 던집니다.
+            throw e;
+        } catch (JwtException e) {
+            throw new InvalidTokenException("유효하지 않은 토큰입니다.");
         }
-        return claims;
     }
 
     private int tokenExpiresIn(boolean refreshToken, String deviceType) {
