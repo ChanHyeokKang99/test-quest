@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.crypto.SecretKey;
 
+import com.justteam.test_quest_api.common.exception.TokenExpired;
 import com.justteam.test_quest_api.jwt.authentication.JwtAuthentication;
 import com.justteam.test_quest_api.jwt.authentication.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
@@ -108,7 +109,7 @@ public class TokenGenerator {
 
         Date expirationDate = claims.getExpiration();
         if (expirationDate == null || expirationDate.before(new Date())) {
-            return null;
+            throw new TokenExpired("Token Expired");
         }
 
         userId = claims.get("userId", String.class);
