@@ -25,9 +25,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenGenerator tokenGenerator;
     private final ObjectMapper objectMapper;
+    
+    private static final String REFRESH_TOKEN_ENDPOINT = "/api/v1/auth/refresh";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // 리프레시 토큰 엔드포인트는 토큰 검증을 건너뜁니다
+        String requestPath = request.getRequestURI();
+        if (requestPath.equals(REFRESH_TOKEN_ENDPOINT)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         try {
             String token = tokenGenerator.getToken(request);
 

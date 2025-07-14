@@ -70,7 +70,7 @@ public class AuthController {
     @PostMapping(value = "/refresh")
     @Operation(
         summary = "액세스 토큰 갱신", 
-        description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급합니다.",
+        description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급합니다. Authorization 헤더에 'Bearer {refresh_token}' 형식으로 리프레시 토큰을 전송해야 합니다.",
         responses = {
             @ApiResponse(
                 responseCode = "200", 
@@ -83,7 +83,13 @@ public class AuthController {
     public ApiResponseDto<TokenDto.AccessToken> refresh(
             @Parameter(description = "리프레시 토큰 (Bearer 형식)", required = true)
             @RequestHeader("Authorization") String refreshToken) {
-        TokenDto.AccessToken token = userService.refresh(refreshToken);
-        return ApiResponseDto.createOk(token);
+        try {
+            log.info("토큰 갱신 요청 처리 중: {}", refreshToken);
+            TokenDto.AccessToken token = userService.refresh(refreshToken);
+            return ApiResponseDto.createOk(token);
+        } catch (Exception e) {
+            log.error("토큰 갱신 실패: {}", e.getMessage());
+            return ApiResponseDto.createError("REFRESH_TOKEN_ERROR", e.getMessage());
+        }
     }
 }
