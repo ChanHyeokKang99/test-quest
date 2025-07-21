@@ -2,7 +2,6 @@ package com.justteam.test_quest_api.api.gameboard.dto;
 
 import lombok.Data;
 
-import java.beans.ConstructorProperties;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
