@@ -9,9 +9,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
+
+
 @Data
 @Schema(description = "게임보드 생성 DTO")
 public class GameBoardCreateDto {
+
 
     @NotBlank
     @Schema(description = "게임보드 제목", required = true, nullable = false)
@@ -21,11 +24,11 @@ public class GameBoardCreateDto {
     private String description;
 
     @NotBlank
-    @Schema(description = "플랫폼", required = true, nullable = false)
+    @Schema(description = "플랫폼", required = true, nullable = false, example = "pc", allowableValues = {"pc", "mobile", "console", "unkown"})
     private String platform;
 
     @NotBlank
-    @Schema(description = "게임 타입", required = true, nullable = false)
+    @Schema(description = "게임 타입", required = true, nullable = false, allowableValues = {"cbt", "obt", "alpha", "beta", "unknown"})
     private String type;
 
     @Schema(description = "썸네일 URL", hidden = true, example = "https://cdn.example.com/thumb.png")
@@ -37,9 +40,8 @@ public class GameBoardCreateDto {
     @Schema(description = "게임보드 이미지 파일", nullable = true)
     private MultipartFile boardImage;
 
-    @NotBlank
-    @Schema(description = "모집 상태", required = true, nullable = false)
-    private String recruitStatus;
+    @Schema(description = "모집 상태", required = false, nullable = false, example = "open")
+    private String recruitStatus ="open";
 
     @NotNull
     @Schema(description = "시작 날짜", required = true, nullable = false, example = "2025-09-01")
