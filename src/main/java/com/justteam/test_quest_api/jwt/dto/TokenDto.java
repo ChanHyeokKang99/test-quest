@@ -1,5 +1,6 @@
 package com.justteam.test_quest_api.jwt.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +15,10 @@ public class TokenDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class JwtToken {
+        @Schema(example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
         private String token;
+
+        @Schema(example = "900")
         private Integer expiresIn;
     }
 
@@ -30,7 +34,6 @@ public class TokenDto {
     public static class AccessRefreshToken {
         private final JwtToken access;
         private final JwtToken refresh;
-        private final String userId;
     }
     
 }
