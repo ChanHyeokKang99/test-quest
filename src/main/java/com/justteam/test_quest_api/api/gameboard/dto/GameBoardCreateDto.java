@@ -41,10 +41,6 @@ public class GameBoardCreateDto {
     @Schema(description = "모집 상태", required = true, nullable = false)
     private String recruitStatus;
 
-    @NotBlank
-    @Schema(description = "작성자", required = true, nullable = false)
-    private String author;
-
     @NotNull
     @Schema(description = "시작 날짜", required = true, nullable = false)
     private LocalDate startDate;
@@ -63,7 +59,6 @@ public class GameBoardCreateDto {
         board.setType(this.type);
         board.setThumbnailUrl(this.thumbnailUrl);
         board.setLinkUrl(this.linkUrl);
-        board.setAuthor(this.author);
         board.setStartDate(this.startDate);
         board.setEndDate(this.endDate);
         board.setRecruitStatus(this.recruitStatus);

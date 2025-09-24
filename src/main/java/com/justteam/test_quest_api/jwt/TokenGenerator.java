@@ -53,7 +53,7 @@ public class TokenGenerator {
     public TokenDto.AccessRefreshToken generateAccessRefreshToken(String userId, String deviceType) {
         TokenDto.JwtToken accessJwtToken = this.generateToken(userId, deviceType, false);
         TokenDto.JwtToken refreshJwtToken = this.generateToken(userId, deviceType, true);
-        return new TokenDto.AccessRefreshToken(accessJwtToken, refreshJwtToken);
+        return new TokenDto.AccessRefreshToken(accessJwtToken, refreshJwtToken, userId);
     }
 
     public TokenDto.JwtToken generateToken(String userId, String deviceType, boolean refreshToken) {
