@@ -28,10 +28,10 @@ public class GameBoardCreateDto {
     @Schema(description = "게임 타입", required = true, nullable = false)
     private String type;
 
-    @Schema(description = "썸네일 URL", hidden = true)
+    @Schema(description = "썸네일 URL", hidden = true, example = "https://cdn.example.com/thumb.png")
     private String thumbnailUrl;
 
-    @Schema(description = "링크 URL", nullable = true)
+    @Schema(description = "링크 URL", nullable = true, example = "https://discord.gg/xxxx")
     private String linkUrl;
 
     @Schema(description = "게임보드 이미지 파일", nullable = true)
@@ -42,11 +42,11 @@ public class GameBoardCreateDto {
     private String recruitStatus;
 
     @NotNull
-    @Schema(description = "시작 날짜", required = true, nullable = false)
+    @Schema(description = "시작 날짜", required = true, nullable = false, example = "2025-09-01")
     private LocalDate startDate;
 
     @NotNull
-    @Schema(description = "종료 날짜", required = true, nullable = false)
+    @Schema(description = "종료 날짜", required = true, nullable = false, example = "2025-10-01")
     private LocalDate endDate;
 
 

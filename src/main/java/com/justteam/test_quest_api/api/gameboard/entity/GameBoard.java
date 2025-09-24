@@ -1,7 +1,6 @@
 package com.justteam.test_quest_api.api.gameboard.entity;
 
 import com.justteam.test_quest_api.api.user.entity.User;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;

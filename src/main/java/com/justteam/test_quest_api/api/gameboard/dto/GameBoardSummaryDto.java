@@ -1,6 +1,5 @@
 package com.justteam.test_quest_api.api.gameboard.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
