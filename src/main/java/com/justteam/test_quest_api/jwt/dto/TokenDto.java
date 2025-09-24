@@ -24,11 +24,13 @@ public class TokenDto {
         private final JwtToken access;
     }
 
+    // 로그인시
     @Getter
     @RequiredArgsConstructor
     public static class AccessRefreshToken {
         private final JwtToken access;
         private final JwtToken refresh;
+        private final String userId;
     }
     
 }

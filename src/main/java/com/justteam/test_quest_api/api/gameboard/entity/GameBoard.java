@@ -48,8 +48,8 @@ public class GameBoard {
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt=LocalDateTime.now();
 
-    @Column(name = "author", nullable = false)
-    private String author;
+//    @Column(name = "author", nullable = false)
+//    private String author;
 
     @Column(name = "recruit_status", nullable = false)
     private String recruitStatus = "open";
